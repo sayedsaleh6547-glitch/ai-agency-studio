@@ -76,7 +76,10 @@ def main():
               f"fade=t=in:st=0:d=0.4,fade=t=out:st={d-0.4:.2f}:d=0.4,format=yuv420p")
         cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", png]
         cmd += ["-i", wav] if has_voice else ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono"]
-        cmd += ["-vf", vf, "-t", f"{d:.2f}", "-c:v", "libx264", "-c:a", "aac", "-ar", "44100", "-ac", "1", "-shortest" if has_voice else "-t", f"{d:.2f}", mp4]
+        cmd += ["-vf", vf]
+        if has_voice:
+            cmd += ["-af", "apad"]
+        cmd += ["-t", f"{d:.2f}", "-c:v", "libx264", "-c:a", "aac", "-ar", "44100", "-ac", "1", mp4]
         run(cmd); clips.append(mp4)
     with open(f"{tmp}/list.txt", "w") as f:
         for c in clips: f.write(f"file '{os.path.basename(c)}'\n")
