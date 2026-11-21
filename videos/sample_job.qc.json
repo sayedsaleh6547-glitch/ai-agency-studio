@@ -1,0 +1,45 @@
+{
+ "ok": true,
+ "checks": [
+  {
+   "check": "file_exists",
+   "ok": true,
+   "detail": "540 KB"
+  },
+  {
+   "check": "codec_h264",
+   "ok": true,
+   "detail": "h264"
+  },
+  {
+   "check": "size_1080x1920",
+   "ok": true,
+   "detail": "1080x1920"
+  },
+  {
+   "check": "duration_5_to_90s",
+   "ok": true,
+   "detail": "13.2s"
+  },
+  {
+   "check": "size_under_50MB",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "has_audio_track",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "check": "voice_audible",
+   "ok": true,
+   "detail": "-16.4 dB"
+  },
+  {
+   "check": "no_medical_claims",
+   "ok": true,
+   "detail": "clean"
+  }
+ ]
+}
