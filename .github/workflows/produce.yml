@@ -1,0 +1,46 @@
+name: produce-video
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job file path"
+        default: "jobs/sample_job.json"
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools (all free)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core
+          pip install pillow piper-tts
+      - name: Download Arabic voice (open source Piper)
+        continue-on-error: true
+        run: |
+          mkdir -p voices
+          base="https://huggingface.co/rhasspy/piper-voices/resolve/main/ar/ar_JO/kareem/medium"
+          curl -fL -o voices/ar.onnx "$base/ar_JO-kareem-medium.onnx"
+          curl -fL -o voices/ar.onnx.json "$base/ar_JO-kareem-medium.onnx.json"
+      - name: Build video (employee 4)
+        run: |
+          name=$(basename "${{ github.event.inputs.job }}" .json)
+          python studio/make_video.py "${{ github.event.inputs.job }}" --out "videos/$name.mp4" --voice-model voices/ar.onnx
+      - name: Quality check (employee 5)
+        id: qc
+        continue-on-error: true
+        run: |
+          name=$(basename "${{ github.event.inputs.job }}" .json)
+          python studio/qc.py "videos/$name.mp4" "${{ github.event.inputs.job }}" --report "videos/$name.qc.json"
+      - name: Save results
+        run: |
+          git config user.name "studio-bot"
+          git config user.email "studio-bot@users.noreply.github.com"
+          git add videos
+          git commit -m "video + quality report" || echo "nothing to commit"
+          git push
+      - name: Fail if quality check failed
+        if: steps.qc.outcome == 'failure'
+        run: exit 1
